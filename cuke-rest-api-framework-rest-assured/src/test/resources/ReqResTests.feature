@@ -19,14 +19,12 @@ Feature: ReqResTests
       | Name     | Value      |
       | method   | GET        |
       | resource | /api/users |
-    #| resource | /api/users?page=2 |
-    
     And the following parameter information:
       | Parameter | Value |
       | page      |     2 |
-      
+
     When I make the call to the resource
-    
+
     Then the response code should be "200"
     And the values should match the following table:
       | Field       | JPAth         | ExpectedValue |
@@ -39,7 +37,9 @@ Feature: ReqResTests
       | Name     | Value        |
       | method   | GET          |
       | resource | /api/users/2 |
+
     When I make the call to the resource
+
     Then the response code should be "200"
     And the values should match the following table:
       | Field       | JPAth     | ExpectedValue |
@@ -53,7 +53,9 @@ Feature: ReqResTests
       | method   | POST       |
       | resource | /api/users |
     And the message data is "{'name': 'morpheus','job': 'leader'}"
+
     When I make the call to the resource
+
     Then the response code should be "201"
     And the values should match the following table:
       | Field | JPAth  | ExpectedValue |
@@ -68,7 +70,9 @@ Feature: ReqResTests
       | method   | PUT          |
       | resource | /api/users/2 |
     And the message data is "{'name': 'morpheus','job': 'zion resident'}"
+
     When I make the call to the resource
+
     Then the response code should be "200"
     And the values should match the following table:
       | Field | JPAth  | ExpectedValue |
@@ -82,5 +86,7 @@ Feature: ReqResTests
       | Name     | Value        |
       | method   | DELETE       |
       | resource | /api/users/2 |
+
     When I make the call to the resource
+
     Then the response code should be "204"
