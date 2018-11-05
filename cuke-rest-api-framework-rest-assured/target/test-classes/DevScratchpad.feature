@@ -11,8 +11,8 @@ Feature: DevScratchpad
       | Minutes in Hours |    60 |
 
   #----------------------------------------------
-  #Scenario: CompareValuesInTable
   #----------------------------------------------
+  Scenario: CompareValuesInTable  
     When the values in the following table are verified:
       | Name  | Expected | Actual |
       | Test1 | Pass     | Pass   |

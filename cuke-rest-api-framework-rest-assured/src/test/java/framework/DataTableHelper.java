@@ -1,8 +1,6 @@
 package framework;
 
 import java.util.List;
-import java.util.Map;
-
 import io.cucumber.datatable.DataTable;
 
 public class DataTableHelper {
