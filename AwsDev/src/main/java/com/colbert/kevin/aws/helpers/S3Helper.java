@@ -74,6 +74,28 @@ public class S3Helper {
 		}
 		return returnBucket;
 	}
+	
+	
+	public Bucket createBucket(String region, String bucketName) {		
+		Bucket returnBucket = null;
+		AmazonS3 client = null;
+		if(region != this.s3Client.getRegionName()) {
+			client =  AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(this.credentials))
+					.withRegion(region).build();
+		}else {
+			client = this.s3Client;
+		}
+		try {
+			if (client.doesBucketExistV2(bucketName)) {
+				throw new AmazonServiceException("Bucket" + bucketName + " already exists.\n");
+			} else {
+				returnBucket = client.createBucket(bucketName);
+			}
+		} catch (AmazonServiceException ase) {
+			AwsHelperUtilities.printAmazonServiceExceptionErrorMessage(ase);
+		}
+		return returnBucket;
+	}
 
 	// ----------------------------------------------------------------
 	// List S3 Buckets
@@ -122,13 +144,14 @@ public class S3Helper {
 	
 	public List<S3ObjectSummary> listObjects(String region, String bucketName) {		
 		ListObjectsV2Result result = null;
+		AmazonS3 client = null;
 		if(region != s3Client.getRegionName()) {
-			AmazonS3 tmpS3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(this.credentials))
-					.withRegion(region).build();
-			result = tmpS3Client.listObjectsV2(bucketName);			
+			client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(this.credentials))
+					.withRegion(region).build();						
 		}else {
-			result = this.s3Client.listObjectsV2(bucketName);			
-		}		
+			client = this.s3Client;
+		}	
+		result = client.listObjectsV2(bucketName);
 		List<S3ObjectSummary> objects = result.getObjectSummaries();
 		System.out.printf("Objects in Bucket '%s'\n", bucketName);
 		for (S3ObjectSummary os : objects) {
@@ -149,6 +172,25 @@ public class S3Helper {
 			AwsHelperUtilities.printAmazonServiceExceptionErrorMessage(ase);
 		}
 	}
+	
+	
+	public void getObject(String region, String bucketName, String key) {
+		AmazonS3 client = null;
+		if(region != this.s3Client.getRegionName()) {
+			client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(this.credentials))
+					.withRegion(region).build();
+		}else {
+			client = this.s3Client;
+		}
+		
+		System.out.printf("Downloading the object '%s' from the bucket '%s'.\n", key, bucketName);
+		try {
+			S3Object object = client.getObject(new GetObjectRequest(bucketName, key));
+			System.out.println("Content-Type: " + object.getObjectMetadata().getContentType());
+		} catch (AmazonServiceException ase) {
+			AwsHelperUtilities.printAmazonServiceExceptionErrorMessage(ase);
+		}
+	}
 
 	// ----------------------------------------------------------------
 	// Put Object
@@ -161,13 +203,29 @@ public class S3Helper {
 			AwsHelperUtilities.printAmazonServiceExceptionErrorMessage(ase);
 		}
 	}
+	
+	public void putObject(String region,String bucketName, String key, File file) {
+		AmazonS3 client = null;
+		if(region != this.s3Client.getRegionName()) {
+			client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(this.credentials))
+					.withRegion(region).build();
+		}else {
+			client = this.s3Client;
+		}
+		try {
+			System.out.printf("Putting the file '%s' into the bucket '%s' .\n", key, bucketName);
+			client.putObject(new PutObjectRequest(bucketName, key, file));
+		} catch (AmazonServiceException ase) {
+			AwsHelperUtilities.printAmazonServiceExceptionErrorMessage(ase);
+		}
+	}
 
 	// ----------------------------------------------------------------
 	// Delete Object
 	// ----------------------------------------------------------------
 	public void deleteObject(String bucketName, String key) {
 		try {
-			System.out.printf("Deleting '%s% from the bucket '%s' .\n", key, bucketName);
+			System.out.printf("Deleting '%s from the bucket '%s' .\n", key, bucketName);
 			this.s3Client.deleteObject(bucketName, key);
 		} catch (AmazonServiceException ase) {
 			AwsHelperUtilities.printAmazonServiceExceptionErrorMessage(ase);
@@ -177,7 +235,7 @@ public class S3Helper {
 	
 	public void deleteObject(String region, String bucketName, String key) {
 		try {
-			System.out.printf("Deleting '%s% from the bucket '%s' .\n", key, bucketName);
+			System.out.printf("Deleting '%s from the bucket '%s' .\n", key, bucketName);
 			
 			if(region != s3Client.getRegionName()) {
 				AmazonS3 tmpS3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(this.credentials))

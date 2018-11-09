@@ -68,12 +68,13 @@ public class SqsHelper {
 	// ----------------------------------------------------------------
 	// List Queues
 	// ----------------------------------------------------------------
-	public void listQueues() {
+	public ListQueuesResult listQueues() {
 		ListQueuesResult lq_result = this.sqsClient.listQueues();
 		System.out.println("Your SQS Queue URLs:");
 		for (String url : lq_result.getQueueUrls()) {
 			System.out.println(url);
 		}
+		return lq_result;
 	}
 
 	// ----------------------------------------------------------------
@@ -102,7 +103,7 @@ public class SqsHelper {
 	// ----------------------------------------------------------------
 	// Get Message(s)
 	// ----------------------------------------------------------------
-	public List<Message> receiveMessages(String queueUrl, String messageBody, int delaySeconds) {
+	public List<Message> getMessages(String queueUrl) {
 		List<Message> messages = this.sqsClient.receiveMessage(queueUrl).getMessages();
 		return messages;
 	}

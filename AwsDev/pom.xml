@@ -18,7 +18,7 @@
     </dependency>
     
     
-    <!-- JUNIT -->
+    	<!-- JUNIT -->
 		<dependency>
 		    <groupId>junit</groupId>
 		    <artifactId>junit</artifactId>
@@ -31,14 +31,14 @@
 		<dependency>
 		    <groupId>io.cucumber</groupId>
 		    <artifactId>cucumber-core</artifactId>
-		    <version>4.1.0</version>
+		    <version>4.2.0</version>
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/io.cucumber/cucumber-java -->
 		<dependency>
 		    <groupId>io.cucumber</groupId>
 		    <artifactId>cucumber-java</artifactId>
-		    <version>4.1.0</version>
+		    <version>4.2.0</version>
 		</dependency>
 		
 					
@@ -46,14 +46,14 @@
 		<dependency>
 		    <groupId>io.cucumber</groupId>
 		    <artifactId>cucumber-picocontainer</artifactId>
-		    <version>4.0.0</version>
+		    <version>4.2.0</version>
 		    <scope>test</scope>
 		</dependency>
 		
 		<dependency>
 		    <groupId>io.cucumber</groupId>
 		    <artifactId>cucumber-junit</artifactId>
-		    <version>4.0.0</version>
+		    <version>4.2.0</version>
 		    <scope>test</scope>
 		</dependency>
 

@@ -80,8 +80,8 @@ Background:
   When the user gets the messages from the queue "" with a "" second delay
     
   When the user gets message(s) as described below:
-  |QueueName		|DelayInSeconds	|
-  |blah				| 5				|  
+  |QueueName		|MessageID		|
+  |blah				| 				|  
   
   
 #---------------------------------------------------------------------------
@@ -113,10 +113,10 @@ Background:
 		
   When the user deletes the messages with the given information
   
-  When the user deletes the messages from the queue "" with a "" second delay
+  When the user deletes the message with the ID "" from the queue
     
   When the user deletes message(s) as described below:
-  |QueueName		|DelayInSeconds	|
+  |QueueName		|MessageId		|
   |blah				| 5				|		
   
   

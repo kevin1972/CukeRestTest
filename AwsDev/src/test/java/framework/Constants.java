@@ -15,4 +15,8 @@ public class Constants {
 	public static final String FILE_PATH_KEY = "filePath";
 	public static final Object FILE_KEY = "fileKey";
 	public static final Object S3_BUCKET_NAME_KEY = "bucketName";
+	public static final Object SQS_QUEUE_NAME_KEY = "sqsQueueName";
+	public static final Object SQS_MESSAGE_KEY = "sqsMessage";
+	public static final Object SQS_MESSAGE_BODY_KEY = "sqsMessageBody";
+	public static final Object SQS_QUEUE_URL_KEY = "sqsQueueUrl";
 }

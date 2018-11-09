@@ -14,8 +14,10 @@ Feature: RestCountriesTests
 
 
   #---------------------------------------------------------------------------
-  Scenario: GetAllCountries
   #---------------------------------------------------------------------------
+  @RunMe
+  Scenario: GetAllCountries
+  
     Given the following setup information:
       | Name     | Value |
       | method   | GET   |
@@ -31,8 +33,9 @@ Feature: RestCountriesTests
 
 
   #---------------------------------------------------------------------------
-  Scenario Outline: GetCountryByNameAndFullText
   #---------------------------------------------------------------------------
+  Scenario Outline: GetCountryByNameAndFullText
+  
     Given the following setup information:
       | Name     | Value               |
       | method   | GET                 |

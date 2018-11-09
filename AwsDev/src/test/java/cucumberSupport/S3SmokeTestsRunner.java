@@ -6,11 +6,11 @@ import cucumber.api.junit.Cucumber;
 @RunWith(Cucumber.class)
 @CucumberOptions(
 		plugin = {"pretty"},
-		features = {"src/test/resources"},
+		features = {"src/test/resources/S3SmokeTests.feature"},
 		glue = {"steps"},
 		tags = {"@RunMe"}
 		)
  
-public class TestRunner {
+public class S3SmokeTestsRunner {
  
 }

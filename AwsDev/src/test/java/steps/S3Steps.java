@@ -21,7 +21,7 @@ import framework.TestRun;
 
 public class S3Steps {
 	private TestRun testRun;
-	//private String region;
+	// private String region;
 	private S3Helper s3Helper;
 	private Bucket currentBucket;
 	private File currentFile;
@@ -64,7 +64,7 @@ public class S3Steps {
 		}
 	}
 
-	@When("the user uploads the file with the given path and name")
+	@When("the user uploads the file with the given path and key")
 	public void the_user_uploads_the_file_with_the_given_path_and_name() {
 		String key = testRun.getTestData().get(Constants.FILE_KEY).toString();
 		String bucketName = "";
@@ -102,6 +102,32 @@ public class S3Steps {
 		}
 	}
 
+	@When("the user uploads the file with the path {string} and the key {string} into the bucket named {string} in the region {string}")
+	public void the_user_uploads_the_file_with_the_path_and_the_key_into_the_bucket_named_in_the_region(String filePath,
+			String fileKey, String bucketName, String region) {
+		File file = new File(filePath);
+		this.s3Helper.putObject(region, bucketName, fileKey, file);
+	}
+
+	@Then("the bucket named {string} in the region {string} should contain the key {string}")
+	public void the_bucket_named_in_the_region_should_contain_the_key(String bucketName, String region,
+			String fileKey) {
+		List<S3ObjectSummary> contents = this.s3Helper.listObjects(bucketName);
+		HashMap<String, S3ObjectSummary> contentsMap = new HashMap<String, S3ObjectSummary>();
+		for (S3ObjectSummary os : contents) {
+			contentsMap.put(os.getKey(), os);
+		}
+
+		if (contentsMap.containsKey(fileKey)) {
+			Assert.assertEquals(true, true);
+			System.out.printf("Found the expected object '%s' in the bucket '%s'\n", fileKey, bucketName);
+		} else {
+			Assert.assertEquals(true, false);
+			System.out.printf("ERROR: Could not find the expected object '%s' in the bucket '%s'\n", fileKey,
+					bucketName);
+		}
+	}
+
 	@Then("the bucket named {string} should contain the following objects:")
 	public void the_bucket_named_should_contain_the_following_objects(String bucketName,
 			io.cucumber.datatable.DataTable dataTable) {
@@ -118,7 +144,8 @@ public class S3Steps {
 				System.out.printf("ERROR: Could not find the expected object '%s' in the bucket '%s'\n",
 						expectedObjectName, bucketName);
 			} else {
-				System.out.printf("Found the expected object '%s' in the bucket '%s'\n", expectedObjectName, bucketName);
+				System.out.printf("Found the expected object '%s' in the bucket '%s'\n", expectedObjectName,
+						bucketName);
 			}
 		}
 	}
@@ -169,15 +196,7 @@ public class S3Steps {
 		String bucketName = "";
 
 		// check fileKey
-		if (testRun.getTestData().containsKey(Constants.FILE_KEY)) {
-			bucketName = testRun.getTestData().get(Constants.FILE_KEY).toString();
-			;
-		} else if (this.currentFile != null) {
-			bucketName = this.currentFile.getName();
-		} else {
-			String errMsg = "No '" + Constants.FILE_KEY + "' has been set and the currentFile variable is null.";
-			throw new Exception(errMsg);
-		}
+		fileKey = getFileKey();
 
 		// check bucketName
 		if (testRun.getTestData().containsKey(Constants.S3_BUCKET_NAME_KEY)) {
@@ -213,29 +232,26 @@ public class S3Steps {
 	}
 
 	@Then("the bucket should not contain the file that was deleted")
-	public void the_bucket_should_not_contain_the_file_that_was_deleted() {
-		// Write code here that turns the phrase above into concrete actions
-		throw new cucumber.api.PendingException();
+	public void the_bucket_should_not_contain_the_file_that_was_deleted() throws Exception {
+		String fileKey = getFileKey();
+		String bucketName = getBucketName();
+		
+		if (!doesKeyExist(bucketName, fileKey)) {
+			Assert.assertEquals(true, true);
+		} else {
+			Assert.assertEquals(true, false);
+		}
 	}
 
 	@Then("the bucket named {string} in the region {string} should not contain the key {string}")
 	public void the_bucket_named_in_the_region_should_not_contain_the_key(String bucketName, String regionName,
 			String key) {
-		if (doesBucketExist(bucketName)) {
-			this.currentBucket = getBucket(bucketName);
-			this.currentObjectList = this.s3Helper.listObjects(bucketName);
-
-			HashMap<String, S3ObjectSummary> objectMap = new HashMap<String, S3ObjectSummary>();
-			for (S3ObjectSummary os : this.currentObjectList) {
-				objectMap.put(os.getKey(), os);
-			}
-
-			if (!objectMap.containsKey(key)) {
-				Assert.assertEquals(true, true);
-			} else {
-				Assert.assertEquals(true, false);
-			}
+		if (!doesKeyExist(bucketName, key)) {
+			Assert.assertEquals(true, true);
+		} else {
+			Assert.assertEquals(true, false);
 		}
+
 	}
 
 	@Then("a file with the following description should not be present:")
@@ -246,26 +262,27 @@ public class S3Steps {
 			String region = table.get(i).get(0);
 			String bucketName = table.get(i).get(1);
 			String fileKey = table.get(i).get(2);
-			List<S3ObjectSummary> bucketContents = s3Helper.listObjects(region, bucketName);
 			
-			HashMap<String, S3ObjectSummary> objectMap = new HashMap<String, S3ObjectSummary>();
-			for (S3ObjectSummary os : this.currentObjectList) {
-				objectMap.put(os.getKey(), os);
-			}
-			
-			if (!objectMap.containsKey(fileKey)) {
+			if (!doesKeyExist(region, bucketName, fileKey)) {
 				Assert.assertEquals(true, true);
 			} else {
 				Assert.assertEquals(true, false);
 			}
 		}
 	}
+	
+	
+	@When("the user deletes the file named {string} from the bucket named {string} in the region {string}")
+	public void the_user_deletes_the_file_named_from_the_bucket_named_in_the_region(String fileKey, String bucketName, String region) {
+	    s3Helper.deleteObject(region, bucketName, fileKey);
+	}
+
 
 	// =======================================================================================================================================================
 	// =======================================================================================================================================================
 	private S3Helper createS3Helper() {
 		AWSCredentials creds = CredentialsHelper.getCredentialsFromDefaultProvider();
-		HashMap<String, Object> testData = testRun.getTestData();
+		// HashMap<String, Object> testData = testRun.getTestData();
 		String region = testRun.getTestData().get(Constants.AWS_REGION_KEY).toString();
 		S3Helper s3 = new S3Helper(creds, region);
 		return s3;
@@ -292,7 +309,7 @@ public class S3Steps {
 		}
 
 	}
-	
+
 	private Boolean doesBucketExist(String region, String bucketName) {
 		// create the helper
 		S3Helper helper = createS3Helper();
@@ -336,29 +353,119 @@ public class S3Steps {
 		return foundBucket;
 	}
 	
+	private Bucket getBucket(String region, String bucketName) {
+		Bucket foundBucket = null;
+		// create the helper
+		S3Helper helper = createS3Helper();
+
+		// get a list of buckets
+		List<Bucket> buckets = helper.listBuckets(region);
+
+		// convert list of buckets to a map
+		HashMap<String, Bucket> bucketMap = new HashMap<String, Bucket>();
+		for (Bucket bucket : buckets) {
+			bucketMap.put(bucket.getName(), bucket);
+		}
+
+		// verify bucket was found
+		if (bucketMap.containsKey(bucketName)) {
+			foundBucket = bucketMap.get(bucketName);
+		}
+		return foundBucket;
+	}
+
 	private List<S3ObjectSummary> listBucketObjects(String bucketName) throws Exception {
 		List<S3ObjectSummary> contents = null;
 		if (doesBucketExist(bucketName)) {
 			this.currentBucket = getBucket(bucketName);
 			contents = this.s3Helper.listObjects(bucketName);
-			this.currentObjectList = contents;			
-		}else {
+			this.currentObjectList = contents;
+		} else {
 			throw new Exception("No bucket named '" + bucketName + "' exists.");
 		}
 		return contents;
 	}
-	
-	
+
 	private List<S3ObjectSummary> listBucketObjects(String region, String bucketName) throws Exception {
 		List<S3ObjectSummary> contents = null;
 		if (doesBucketExist(region, bucketName)) {
 			this.currentBucket = getBucket(bucketName);
 			contents = this.s3Helper.listObjects(bucketName);
-			this.currentObjectList = contents;			
-		}else {
+			this.currentObjectList = contents;
+		} else {
 			throw new Exception("No bucket named '" + bucketName + "' exists.");
 		}
 		return contents;
+	}
+
+	private Boolean doesKeyExist(String bucketName, String key) {
+		Boolean found = false;
+		if (doesBucketExist(bucketName)) {
+			this.currentBucket = getBucket(bucketName);
+			this.currentObjectList = this.s3Helper.listObjects(bucketName);
+
+			HashMap<String, S3ObjectSummary> objectMap = new HashMap<String, S3ObjectSummary>();
+			for (S3ObjectSummary os : this.currentObjectList) {
+				objectMap.put(os.getKey(), os);
+			}
+
+			if (objectMap.containsKey(key)) {
+				found = true;
+			} else {
+				found = false;
+			}
+		}
+		return found;
+	}
+	
+	
+	private Boolean doesKeyExist(String region, String bucketName, String key) {
+		Boolean found = false;
+		if (doesBucketExist(region, bucketName)) {
+			this.currentBucket = getBucket(region, bucketName);
+			this.currentObjectList = this.s3Helper.listObjects(region, bucketName);
+
+			HashMap<String, S3ObjectSummary> objectMap = new HashMap<String, S3ObjectSummary>();
+			for (S3ObjectSummary os : this.currentObjectList) {
+				objectMap.put(os.getKey(), os);
+			}
+
+			if (objectMap.containsKey(key)) {
+				found = true;
+			} else {
+				found = false;
+			}
+		}
+		return found;
+	}
+	
+	
+	private String getFileKey() throws Exception {
+		String fileKey = "";
+		if (testRun.getTestData().containsKey(Constants.FILE_KEY)) {
+			fileKey = testRun.getTestData().get(Constants.FILE_KEY).toString();
+			;
+		} else if (this.currentFile != null) {
+			fileKey = this.currentFile.getName();
+		} else {
+			String errMsg = "No '" + Constants.FILE_KEY + "' has been set and the currentFile variable is null.";
+			throw new Exception(errMsg);
+		}
+		return fileKey;
+	}
+	
+	private String getBucketName() throws Exception {
+		String bucketName = "";
+		if (testRun.getTestData().containsKey(Constants.S3_BUCKET_NAME_KEY)) {
+			bucketName = testRun.getTestData().get(Constants.S3_BUCKET_NAME_KEY).toString();
+		} else if (this.currentBucket != null) {
+			bucketName = this.currentBucket.getName();
+		} else {
+			String errMsg = "No '" + Constants.S3_BUCKET_NAME_KEY
+					+ "' has been set and the currentBucket variable is null.";
+			throw new Exception(errMsg);
+		}
+		return bucketName;
 	}
 
 }
