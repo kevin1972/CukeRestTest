@@ -13,6 +13,7 @@ import com.amazonaws.services.logs.model.DescribeLogStreamsRequest;
 import com.amazonaws.services.logs.model.DescribeLogStreamsResult;
 import com.amazonaws.services.logs.model.GetLogEventsRequest;
 import com.amazonaws.services.logs.model.GetLogEventsResult;
+import com.amazonaws.services.logs.model.LogGroup;
 import com.amazonaws.services.logs.model.OutputLogEvent;
 
 public class AwsLogsHelper {
@@ -54,21 +55,42 @@ public class AwsLogsHelper {
 	// ----------------------------------------------------------------
 	// Get Log Groups
 	// ----------------------------------------------------------------
-	public DescribeLogGroupsResult getLogGroups(DescribeLogGroupsRequest describeLogGroupsRequest) {
-		return this.awsLogsClient.describeLogGroups(describeLogGroupsRequest);
+	public List<LogGroup> getLogGroups(DescribeLogGroupsRequest describeLogGroupsRequest) {
+		List<LogGroup> groups = null;		
+		groups = this.awsLogsClient.describeLogGroups(describeLogGroupsRequest).getLogGroups();
+		System.out.print("Groups:");
+		for(LogGroup group:groups) {
+			System.out.println(group.getLogGroupName());
+		}
+		return groups;
 	}
 
-	public DescribeLogGroupsResult getLogGroups() {
-		return this.awsLogsClient.describeLogGroups();
+	public List<LogGroup> getLogGroups() {				
+		List<LogGroup> groups = null;		
+		System.out.print("Groups:");
+		groups = this.awsLogsClient.describeLogGroups().getLogGroups();
+		for(LogGroup group:groups) {
+			System.out.println(group.getLogGroupName());
+		}
+		return groups;
 	}
 
 	// ----------------------------------------------------------------
 	// Get Logs
 	// ----------------------------------------------------------------
+	public List<OutputLogEvent> getLogs(String groupName) {
+		List<OutputLogEvent> logs = null;
+		GetLogEventsResult logEventsResult = this.awsLogsClient.getLogEvents(
+				new GetLogEventsRequest().withLogGroupName(groupName));
+		logs = logEventsResult.getEvents();
+		return logs;
+	}
+	
+		
 	public List<OutputLogEvent> getLogs(String groupName, String logStreamName) {
 		List<OutputLogEvent> logs = null;
 		GetLogEventsResult logEventsResult = this.awsLogsClient.getLogEvents(
-				new GetLogEventsRequest().withLogGroupName("/aws/batch/job").withLogStreamName(logStreamName));
+				new GetLogEventsRequest().withLogGroupName(groupName).withLogStreamName(logStreamName));
 		logs = logEventsResult.getEvents();
 		return logs;
 	}

@@ -19,14 +19,18 @@ public class SqsSteps {
 	private SqsHelper sqsHelper;
 	private String currentQueueName;
 	private String currentQueueUrl;
-	private ListQueuesResult currentQueueList;
-	private Message currentMessage;
-	private List<Message> currentMessages;
-	private String currentMessageId;
+	private Message currentMessage;	
 	private String currentRegion;
 	final int DEFAULT_DELAY_IN_SECONDS = 1;
 	final String DEFAULT_MESSAGE_RETENTION_PERIOD = "10";
 	private String currentMessageBody;
+	
+	@SuppressWarnings("unused")
+	private ListQueuesResult currentQueueList;	
+	@SuppressWarnings("unused")
+	private List<Message> currentMessages;
+	@SuppressWarnings("unused")
+	private String currentMessageId;
 
 	public SqsSteps(TestRun testRun) {
 		this.testRun = testRun;
@@ -251,6 +255,7 @@ public class SqsSteps {
 		return sqs;
 	}
 
+	@SuppressWarnings("unused")
 	private String getRegion() throws Exception {
 		String region = "";
 		if (testRun.getTestData().containsKey(Constants.AWS_REGION_KEY)) {

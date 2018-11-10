@@ -374,6 +374,7 @@ public class S3Steps {
 		return foundBucket;
 	}
 
+	@SuppressWarnings("unused")
 	private List<S3ObjectSummary> listBucketObjects(String bucketName) throws Exception {
 		List<S3ObjectSummary> contents = null;
 		if (doesBucketExist(bucketName)) {
@@ -386,6 +387,7 @@ public class S3Steps {
 		return contents;
 	}
 
+	@SuppressWarnings("unused")
 	private List<S3ObjectSummary> listBucketObjects(String region, String bucketName) throws Exception {
 		List<S3ObjectSummary> contents = null;
 		if (doesBucketExist(region, bucketName)) {

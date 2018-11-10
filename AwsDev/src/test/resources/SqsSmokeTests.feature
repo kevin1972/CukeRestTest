@@ -27,64 +27,116 @@ Scenario: List Queues
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 @NotTested
-Scenario: Get Queue URL 
+Scenario: GetQueueUrlUsingGivenInfo 
 	Given the following information: 
 		| Name   		| Value     		|
 		| queueName 	| queueName 		|
 		
-	When the user gets the URL for the given queue 
-	
-	When the user gets the URL for the queue named "" 
+	When the user gets the URL for the given queue
 	
 	
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 @NotTested
-Scenario: Delete a Queue 
-	Given the following information: 
-		| Name   		| Value     		|
-		| queueName 	| queueName 		|
-		
-		
-	When the user deletes the given queue 
+Scenario Outline: GetQueueUsingExplicitInfo 
 	
-	When the user deletes the queue named "" 
+	When the user gets the URL for the queue named "<QueueName>"
+	
+Examples:
+	|QueueName|	 
 	
 	
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 @NotTested
-Scenario: Send a Message 
+Scenario: DeleteQueueUsingGivenInfo 
+	Given the following information: 
+		| Name   		| Value     		|
+		| queueName 	| queueName 		|
+		
+		
+	When the user deletes the given queue
+	
+	
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+@NotTested
+Scenario Outline: DeleteQueueUsingExplicitInfo 
+	
+	When the user deletes the queue named "<QueueName>"
+	
+Examples:
+	|QueueName|	 
+	
+	 
+	
+	
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+@NotTested
+Scenario: SendMessageUsingGivenInformation 
 	Given the following information: 
 		| Name   		| Value     		|
 		| queueName 	| queueName 		|  		
 		| messageBody	| {messageBody}		|
 		| delayInSeconds| 5					|
+						
 		
-	When the user sends the message with the given information 
+	When the user sends the message with the given information
 	
-	When the user sends the message to the queue "" with a "" second delay 
 	
-	When the user sends the message "" to the queue "" with a "" second delay 
 	
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+@NotTested
+Scenario Outline: SendMessageUsingExplicitInformation 
+	
+	#When the user sends the message to the queue "" with a "" second delay 
+	
+	When the user sends the message "<Message>" to the queue "<QueueName>" with a "<DelayInSeconds>" second delay
+	
+Examples:
+	|Message									|QueueName			|DelayInSeconds	|
+	|											|					|				|
+	 
+	 
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+@NotTested
+Scenario: SendMessageUsingTable	
 	When the user sends a message(s) as described below: 
 		|QueueName		|DelayInSeconds	|MessageBody													|
-		|blah				| 5				|																|
+		|blah			| 5				|																|
 		
 		
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 @NotTested
-Scenario: Get Messages 
+Scenario: GetMessagesUsingGivenInfo 
 	Given the following information: 
 		| Name   		| Value     		|
 		| queueName 	| queueName 		|  				
 		| delayInSeconds| 5					|
 		
-	When the user gets the messages with the given information 
+	When the user gets the messages with the given information
 	
-	When the user gets the messages from the queue "" with a "" second delay 
 	
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+@NotTested
+Scenario Outline: GetMessagesUsingExplicitInfo	 
+	
+	When the user gets the messages from the queue "<QueueName>" with a "<DelayInSeconds>" second delay
+	
+Examples:
+	|QueueName			|DelayInSeconds	|
+	|					|				|
+	
+	 
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+@NotTested
+Scenario: GetMessagesUsingTable	
 	When the user gets message(s) as described below: 
 		|QueueName		|MessageID		|
 		|blah				| 				|  
@@ -93,7 +145,7 @@ Scenario: Get Messages
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 @NotTested
-Scenario: Get A Single Message 
+Scenario: GetSingleMessageUsingGivenInfo 
 	Given the following information: 
 		| Name   		| Value     		|
 		| queueName 	| queueName 		|		  			
@@ -101,10 +153,25 @@ Scenario: Get A Single Message
 		| messageId		|					|
 		
 		
-	When the user gets the messages with the given information 
+	When the user gets the messages with the given information
+		
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+@NotTested
+Scenario Outline: GetSingleMessageUsingExplicitInfo		
+	 	
+	When the user gets the message with the ID "<MessageId>" from the queue "<QueueName>" with a "<DelayInSeconds>" second delay
 	
-	When the user gets the message with the ID "" from the queue "" with a "" second delay 
+Examples:
+	|QueueName		|MessageId		|DelayInSeconds	|
+	|				|				|				|	 
 	
+	
+	
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+@NotTested
+Scenario: GetSingleMessageUsingTable	
 	When the user gets the message using the following criteria: 
 		|QueueName		|MessageId	|DelayInSeconds	|
 		|blah				|			| 5				|  
@@ -113,7 +180,7 @@ Scenario: Get A Single Message
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 @NotTested
-Scenario: Delete Messages 
+Scenario: DeleteMessageUsingGivenInfo 
 	Given the following information: 
 		| Name   		| Value     		|
 		| queueName 	| queueName 		|  				
@@ -121,28 +188,56 @@ Scenario: Delete Messages
 		
 	When the user deletes the messages with the given information 
 	
-	When the user deletes the message with the ID "" from the queue 
 	
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+@NotTested
+Scenario Outline: DeleteMessageUsingExplicitInfo	
+	When the user deletes the message with the ID "<MessageId>" from the queue
+	
+Examples:
+	|MessageId		|
+	|				|	 
+	
+	
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+@NotTested
+Scenario: DeleteMessageUsingTable	
 	When the user deletes message(s) as described below: 
 		|QueueName		|MessageId		|
-		|blah				| 5				|		
+		|blah			| 5				|		
 		
 		
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 @NotTested
-Scenario: Delete A Single Message 
+Scenario: DeleteSingleMessageUsingGivenInfo 
 	Given the following information: 
 		| Name   		| Value     		|
 		| queueName 	| queueName 		|		  			
 		| delayInSeconds| 5					|
 		| messageId		|					|
 		
+		When the user deletes the message with the given information
 		
-	When the user deletes the message with the given information 
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+@NotTested
+Scenario Outline: DeleteSingleMessageUsingExplicitInfo		
+	 	
+	When the user deletes the message with the ID "<MessageId>" from the queue "<QueueName>" with a "<DelayInSeconds>" second delay
 	
-	When the user deletes the message with the ID "" from the queue "" with a "" second delay 
+	Examples:
+	|QueueName		|MessageId			|DelayInSeconds	|
+	|				|					|				|
+	
+
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+@NotTested
+Scenario: DeleteSingleMessageUsingTable	 
 	
 	When the user deletes the message(s) using the following criteria: 
-		|QueueName		|MessageId	|DelayInSeconds	|
-		|blah				|			| 5				|
+		|QueueName		|MessageId		|DelayInSeconds	|
+		|blah			|				| 5				|

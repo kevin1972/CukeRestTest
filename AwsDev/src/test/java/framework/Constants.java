@@ -19,4 +19,14 @@ public class Constants {
 	public static final Object SQS_MESSAGE_KEY = "sqsMessage";
 	public static final Object SQS_MESSAGE_BODY_KEY = "sqsMessageBody";
 	public static final Object SQS_QUEUE_URL_KEY = "sqsQueueUrl";
+	public static final Object LAMBDA_FUNCTION_NAME_KEY = "functionName";
+	public static final Object LAMBDA_PAYLOAD_KEY = "functionPayload";
+	public static final Object TOPIC_ARN_KEY = "topicArn";
+	public static final Object SNS_PROTOCOL_KEY = "protocol";
+	public static final Object SNS_ENDPOINT_KEY = "endpoint";
+	public static final Object MESSAGE_KEY = "message";
+	public static final Object TABLE_NAME_KEY = "tableName";
+	public static final Object READ_UNITS_KEY = "readUnits";
+	public static final Object WRITE_UNITS_KEY = "writeUnits";
+	public static final Object ITEM_NAME_KEY = "itemName";
 }
