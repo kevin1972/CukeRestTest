@@ -17,45 +17,43 @@ import framework.Constants;
 import framework.TestRun;
 
 public class LambdaSteps {
-	private TestRun testRun;	
+	private TestRun testRun;
 	private LambdaHelper lambdaHelper;
 	private String currentFunctionName;
 	private String currentPayload;
 	private InvokeResult lastResult;
-	
+	private String lastLambdaOutput;
+
 	@SuppressWarnings("unused")
 	private List<FunctionConfiguration> functions;
-	
-	
+
 	public LambdaSteps(TestRun testRun) {
 		this.testRun = testRun;
 		this.lambdaHelper = createLambdaHelper();
 	}
-	
-			
+
 	@When("the user gets a list of functions")
 	public void the_user_gets_a_list_of_functions() {
-	    this.functions = lambdaHelper.listFunctions();
+		this.functions = lambdaHelper.listFunctions();
 	}
-	
-	
+
 	@Then("the following lambdas should be returned:")
 	public void the_following_lambdas_should_be_returned(io.cucumber.datatable.DataTable dataTable) {
 		List<List<String>> table = dataTable.asLists(String.class);
-		
+
 		HashMap<String, FunctionConfiguration> functionMap = new HashMap<String, FunctionConfiguration>();
-		
-		for(FunctionConfiguration fc: this.functions) {
+
+		for (FunctionConfiguration fc : this.functions) {
 			functionMap.put(fc.getFunctionName(), fc);
 		}
 
 		for (int i = 1; i < table.size(); i++) {
 			String functionName = table.get(i).get(0);
-			
-			if(functionMap.containsKey(functionName)) {
+
+			if (functionMap.containsKey(functionName)) {
 				System.out.printf("Found the expected function named '%s'\n", functionName);
 				Assert.assertEquals(true, true);
-			}else {
+			} else {
 				System.out.printf("ERROR: Did NOT find the expected function named '%s'\n", functionName);
 				Assert.assertEquals(true, false);
 			}
@@ -65,53 +63,55 @@ public class LambdaSteps {
 	@When("the user invokes the Lambda function named {string}")
 	public void the_user_invokes_the_Lambda_function_named(String functionName) throws Exception {
 		String payload = getPayload();
-		
-		if(payload != null) {
+
+		if (payload != null) {
 			this.lastResult = this.lambdaHelper.runLambda(functionName, payload);
-		}else {
+		} else {
 			this.lastResult = this.lambdaHelper.runLambda(functionName);
 		}
-	    
-	    String resultCode = this.lastResult.getStatusCode().toString();
-	    System.out.println("Execution Result Code: " + resultCode);
+
+		String resultCode = this.lastResult.getStatusCode().toString();
+		System.out.println("Execution Result Code: " + resultCode);
 	}
-	
+
 	@Then("the status code {string} should be returned")
 	public void the_status_code_should_be_returned(String expectedStatusCode) {
-	    Integer actualStatusCode = this.lastResult.getStatusCode();
-	    
-	    if(Integer.valueOf(expectedStatusCode).equals(actualStatusCode)) {
-	    	System.out.printf("The expected status code '%s' matches the actual status code '%d'\n", expectedStatusCode, actualStatusCode);
+		Integer actualStatusCode = this.lastResult.getStatusCode();
+
+		if (Integer.valueOf(expectedStatusCode).equals(actualStatusCode)) {
+			System.out.printf("The expected status code '%s' matches the actual status code '%d'\n", expectedStatusCode,
+					actualStatusCode);
 			Assert.assertEquals(true, true);
-	    }else {
-	    	System.out.printf("ERROR: The expected status code '%s' did NOT match the actual status code '%d'\n", expectedStatusCode, actualStatusCode);
+		} else {
+			System.out.printf("ERROR: The expected status code '%s' did NOT match the actual status code '%d'\n",
+					expectedStatusCode, actualStatusCode);
 			Assert.assertEquals(true, false);
-	    }	    	    
+		}
 	}
-	
-	
 
 	@When("the user invokes the Lambda function named {string} with the payload {string}")
 	public void the_user_invokes_the_Lambda_function_named_with_the_payload(String functionName, String payload) {
-		
-	    //this.lambdaHelper.runLambda(functionName, payload);
-		
-		if(payload != null && !payload.isEmpty()) {			
+
+		// this.lambdaHelper.runLambda(functionName, payload);
+
+		if (payload != null && !payload.isEmpty()) {
 			this.lastResult = this.lambdaHelper.runLambda(functionName, payload);
-		}else {
+		} else {
 			this.lastResult = this.lambdaHelper.runLambda(functionName);
 		}
+		this.lastLambdaOutput = lambdaHelper.getLambdaOutput(this.lastResult);
 	}
 
 	@When("the user invokes the Lambda function using the given data")
 	public void the_user_invokes_the_Lambda_function_using_the_given_data() throws Exception {
-	    String functionName = getFunctionName();
-	    String payload = getPayload();
-	    if(payload != null && !payload.isEmpty()) {
-			this.lastResult = this.lambdaHelper.runLambda(functionName, payload);
-		}else {
+		String functionName = getFunctionName();
+		String payload = getPayload();
+		if (payload != null && !payload.isEmpty()) {
+			this.lastResult = this.lambdaHelper.runLambda(functionName, payload);			
+		} else {
 			this.lastResult = this.lambdaHelper.runLambda(functionName);
 		}
+		this.lastLambdaOutput = lambdaHelper.getLambdaOutput(this.lastResult);
 	}
 
 	@When("the user invokes the Lambda function as described below:")
@@ -121,20 +121,58 @@ public class LambdaSteps {
 		for (int i = 1; i < table.size(); i++) {
 			String functionName = table.get(i).get(0);
 			String payload = table.get(i).get(1);
-			if(payload != null && !payload.isEmpty()) {
+			if (payload != null && !payload.isEmpty()) {
 				this.lastResult = this.lambdaHelper.runLambda(functionName, payload);
-			}else {
+			} else {
 				this.lastResult = this.lambdaHelper.runLambda(functionName);
 			}
+			this.lastLambdaOutput = lambdaHelper.getLambdaOutput(this.lastResult);
 		}
-		
-		String output = lambdaHelper.getLambdaOutput(this.lastResult);
-		System.out.print("Output from Last Lambda: " + output);
 	}
-	
-	
-	
-	
+
+	@When("the output from the Lambda function is displayed on the console")
+	public void the_output_from_the_Lambda_function_is_displayed_on_the_console() {
+		String output = lambdaHelper.getLambdaOutput(this.lastResult);
+		//System.out.println("\nOutput from Last Lambda: " + output);
+		System.out.println("\nOutput from Last Lambda: " + this.lastLambdaOutput);
+	}
+
+	@Then("the value returned from the Lambda function should be {string}")
+	public void the_value_returned_from_the_Lambda_function_should_be(String expectedValue) {
+
+		//String actualValue = lambdaHelper.getLambdaOutput(this.lastResult);
+		String actualValue = this.lastLambdaOutput;
+		if (expectedValue.equals(actualValue)) {
+			System.out.printf("The expected value '%s' matches the actual value '%s'\n", expectedValue, actualValue);
+			Assert.assertEquals(expectedValue, actualValue);
+		} else {
+			System.out.printf("ERROR: The expected value '%s' does NOT match the actual value '%s'\n", expectedValue,
+					actualValue);
+			Assert.assertEquals(expectedValue, actualValue);
+		}
+	}
+
+	@Then("the value\\(s) returned from the Lambda function should match the following conditions:")
+	public void the_value_s_returned_from_the_Lambda_function_should_match_the_following_conditions(
+			io.cucumber.datatable.DataTable dataTable) {
+		//String actualValue = lambdaHelper.getLambdaOutput(this.lastResult);
+		String actualValue = this.lastLambdaOutput;
+		List<List<String>> table = dataTable.asLists(String.class);
+		for (int i = 1; i < table.size(); i++) {
+			String description = table.get(i).get(0);
+			String expectedValue = table.get(i).get(1);
+
+			if (expectedValue.equals(actualValue)) {
+				System.out.printf("The expected value '%s' matches the actual value '%s'\n", expectedValue,
+						actualValue);
+				Assert.assertEquals(expectedValue, actualValue);
+			} else {
+				System.out.printf("ERROR: The expected value '%s' does NOT match the actual value '%s'\n",
+						expectedValue, actualValue);
+				Assert.assertEquals(expectedValue, actualValue);
+			}
+		}
+	}
 
 	// =======================================================================================================================================================
 	// =======================================================================================================================================================
@@ -144,9 +182,7 @@ public class LambdaSteps {
 		LambdaHelper helper = new LambdaHelper(creds, region);
 		return helper;
 	}
-	
-	
-	
+
 	private String getFunctionName() throws Exception {
 		String functionName = "";
 		if (testRun.getTestData().containsKey(Constants.LAMBDA_FUNCTION_NAME_KEY)) {
@@ -155,19 +191,19 @@ public class LambdaSteps {
 		} else if (!this.currentFunctionName.isEmpty()) {
 			functionName = this.currentFunctionName;
 		} else {
-			String errMsg = "No '" + Constants.LAMBDA_FUNCTION_NAME_KEY + "' has been set and the currentFunctionName variable is null.";
+			String errMsg = "No '" + Constants.LAMBDA_FUNCTION_NAME_KEY
+					+ "' has been set and the currentFunctionName variable is null.";
 			throw new Exception(errMsg);
 		}
 		return functionName;
 	}
-	
-	
+
 	private String getPayload() throws Exception {
 		String payload = null;
 		if (testRun.getTestData().containsKey(Constants.LAMBDA_PAYLOAD_KEY)) {
 			payload = testRun.getTestData().get(Constants.LAMBDA_PAYLOAD_KEY).toString();
-			
-		} 
+
+		}
 //		else if (!this.currentPayload.isEmpty()) {
 //			payload = null;
 //		} else {

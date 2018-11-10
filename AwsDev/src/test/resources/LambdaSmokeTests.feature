@@ -39,12 +39,16 @@ Scenario: RunFunctionNoPayload
 ##---------------------------------------------------------------------------
 ##
 ##---------------------------------------------------------------------------		
-#@RunMe
-#Scenario: RunFunctionWithPayload
-#	When the user invokes the Lambda function named "HelloWorld" with the payload "{"Kevin":"Test"}"
-#	
-#	Then the status code "200" should be returned	
+@RunMe
+Scenario Outline: RunFunctionWithPayload
+	When the user invokes the Lambda function named '<FunctionName>' with the payload '<Payload>'
 	
+	Then the status code '<StatusCode>' should be returned
+	And the value returned from the Lambda function should be '<ExpectedValue>'
+	
+	Examples:
+	|FunctionName	|Payload						|StatusCode	|ExpectedValue				|	
+	|HelloWorld		|"Kevin"						|200		|"Hello from Lambda!Kevin"	|
 	
 #---------------------------------------------------------------------------
 #
@@ -54,24 +58,34 @@ Scenario: RunFunctionWithPayload
 	Given the following information: 
 		| Name   		| Value     						|
 		| functionName 	| HelloWorld 						|
-		| payload		| 									|
+		| payload		| Kevin								|
 	
 	When the user invokes the Lambda function using the given data
+	And the output from the Lambda function is displayed on the console		
 	
-	Then the status code "200" should be returned		
+	Then the status code "200" should be returned	
+	And the value returned from the Lambda function should be '"Hello from Lambda!Kevin"'		
 	
 	
 #---------------------------------------------------------------------------
 #
 #---------------------------------------------------------------------------		
-@RunMe
+#@RunMe
 @Tested
 Scenario: RunFunctionUsingTable
 		
 	When the user invokes the Lambda function as described below:
 	|FunctionName		|Payload									|
-	|HelloWorld			|Test										|
+	|HelloWorld			|"Test"										|
+
+	And the output from the Lambda function is displayed on the console
+		
+	Then the status code "200" should be returned
+			
+	And the value(s) returned from the Lambda function should match the following conditions:
+	|Description				|ExpectedValue						|
+	|Expected Message			|"Hello from Lambda!Test"			|	
 	
-	Then the status code "200" should be returned	
+	
 	
 	 

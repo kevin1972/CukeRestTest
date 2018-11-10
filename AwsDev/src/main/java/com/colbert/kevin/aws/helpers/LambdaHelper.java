@@ -75,8 +75,6 @@ public class LambdaHelper {
 		InvokeRequest request = null;
 		InvokeResult result = null;
 
-		payload = "\"" + payload + "\"";
-
 		request = new InvokeRequest().withFunctionName(functionName).withPayload(payload);
 		result = this.lambdaClient.invoke(request);
 		this.setLastRequest(request);
