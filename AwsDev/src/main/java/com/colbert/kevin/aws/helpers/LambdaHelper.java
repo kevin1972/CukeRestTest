@@ -1,6 +1,9 @@
 package com.colbert.kevin.aws.helpers;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.AWSCredentials;
@@ -19,8 +22,6 @@ public class LambdaHelper {
 	private InvokeRequest lastRequest;
 	private InvokeResult lastResult;
 	private String region;
-
-	
 
 	// ----------------------------------------------------------------
 	// Constructor
@@ -57,16 +58,16 @@ public class LambdaHelper {
 		InvokeRequest request = null;
 		InvokeResult result = null;
 
-		request = new InvokeRequest().withFunctionName(functionName);
+		request = new InvokeRequest().withFunctionName(functionName).withPayload("{}");
 
-		this.setLastResult(this.lambdaClient.invoke(request));
+		result = this.lambdaClient.invoke(request);
 
 		this.setLastRequest(request);
 		this.setLastResult(result);
+		String logResult = result.getLogResult();
 		return result;
 	}
 
-	
 	public InvokeResult runLambda(String functionName, String payload) {
 //		InvokeRequest request = new InvokeRequest().withFunctionName("MyFunction").withInvocationType("Event").withLogType("Tail").withClientContext("MyApp")
 //		        .withPayload(ByteBuffer.wrap("fileb://file-path/input.json".getBytes())).withQualifier("1");
@@ -74,12 +75,25 @@ public class LambdaHelper {
 		InvokeRequest request = null;
 		InvokeResult result = null;
 
+		payload = "\"" + payload + "\"";
+
 		request = new InvokeRequest().withFunctionName(functionName).withPayload(payload);
-
-		this.setLastResult(this.lambdaClient.invoke(request));
-
+		result = this.lambdaClient.invoke(request);
 		this.setLastRequest(request);
 		this.setLastResult(result);
+		return result;
+	}
+
+	// ----------------------------------------------------------------
+	// Get Output From Invoke Result
+	// ----------------------------------------------------------------
+	public String getLambdaOutput(InvokeResult invokeResult) {
+		String result = "";
+		final Logger logger = Logger.getLogger(this.getClass().getName());
+		ByteBuffer byteBuf = invokeResult.getPayload();
+		if (byteBuf != null) {
+			result = StandardCharsets.UTF_8.decode(byteBuf).toString();
+		}
 		return result;
 	}
 
@@ -90,9 +104,9 @@ public class LambdaHelper {
 		ListFunctionsResult result = null;
 		ListFunctionsRequest request = new ListFunctionsRequest();
 		result = this.lambdaClient.listFunctions(request);
-		List<FunctionConfiguration> functions = result.getFunctions();			
+		List<FunctionConfiguration> functions = result.getFunctions();
 		System.out.print("Functions List:");
-		for(FunctionConfiguration func:functions) {
+		for (FunctionConfiguration func : functions) {
 			System.out.println(func.getFunctionName());
 		}
 		return functions;
@@ -105,7 +119,6 @@ public class LambdaHelper {
 		List<FunctionConfiguration> functions = result.getFunctions();
 		return functions;
 	}
-	
 
 	// ----------------------------------------------------------------
 	// ACCESSORS
@@ -113,7 +126,7 @@ public class LambdaHelper {
 	public AWSLambda getLambdaClient() {
 		return this.lambdaClient;
 	}
-	
+
 	public InvokeRequest getLastRequest() {
 		return lastRequest;
 	}

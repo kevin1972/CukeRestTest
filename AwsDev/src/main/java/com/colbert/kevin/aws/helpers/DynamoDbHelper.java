@@ -1,7 +1,10 @@
 package com.colbert.kevin.aws.helpers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -18,15 +21,20 @@ import com.amazonaws.services.dynamodbv2.document.UpdateItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
+import com.amazonaws.services.dynamodbv2.model.AttributeAction;
 import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.AttributeValueUpdate;
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.CreateTableResult;
+import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
 import com.amazonaws.services.dynamodbv2.model.KeyType;
 import com.amazonaws.services.dynamodbv2.model.ListTablesRequest;
 import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughputDescription;
+import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
 import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType;
 import com.amazonaws.services.dynamodbv2.model.TableDescription;
 
@@ -192,7 +200,6 @@ public class DynamoDbHelper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 
 	// ----------------------------------------------------------------
@@ -205,6 +212,29 @@ public class DynamoDbHelper {
 		return result;
 	}
 
+//	public void putItem(String tableName, String name) {
+//		HashMap<String, AttributeValue> item_values = new HashMap<String, AttributeValue>();
+//
+//		item_values.put("Name", new AttributeValue(name));
+//
+//		for (String[] field : extra_fields) {
+//			item_values.put(field[0], new AttributeValue(field[1]));
+//		}
+//
+//		final AmazonDynamoDB ddb = AmazonDynamoDBClientBuilder.defaultClient();
+//
+//		try {
+//			ddb.putItem(tableName, item_values);
+//		} catch (ResourceNotFoundException e) {
+//			System.err.format("Error: The table \"%s\" can't be found.\n", tableName);
+//			System.err.println("Be sure that it exists and that you've typed its name correctly!");
+//			System.exit(1);
+//		} catch (AmazonServiceException e) {
+//			System.err.println(e.getMessage());
+//			System.exit(1);
+//		}
+//	}
+
 	// ----------------------------------------------------------------
 	// Get Item
 	// ----------------------------------------------------------------
@@ -214,6 +244,40 @@ public class DynamoDbHelper {
 		Item item = table.getItem(getItemSpec);
 		return item;
 	}
+	
+	public Item getItem(String tableName, String primaryKey) {
+		DynamoDB dynamoDB = new DynamoDB(this.dynamoDbClient);
+		Table table = dynamoDB.getTable(tableName);
+		Item item = table.getItem("ID", primaryKey);
+		return item;
+	}
+
+	
+	public Map<String, AttributeValue> getItemMap(String tableName, String itemKey) {						
+		HashMap<String, AttributeValue> key_to_get = new HashMap<String, AttributeValue>();
+		key_to_get.put("Name", new AttributeValue(itemKey));
+		GetItemRequest request = new GetItemRequest().withKey(key_to_get).withTableName(tableName);
+		
+		Map<String, AttributeValue> foundItem = null;
+		try {
+			foundItem = this.dynamoDbClient.getItem(request).getItem();
+			if (foundItem != null) {
+				Set<String> keys = foundItem.keySet();
+				for (String key : keys) {
+					System.out.format("%s: %s\n", key, foundItem.get(key).toString());
+				}
+			} else {
+				System.out.format("No item found with the key %s!\n", itemKey);
+			}			
+		} catch (AmazonServiceException e) {
+			System.err.println(e.getErrorMessage());
+			System.exit(1);
+		}
+		return foundItem;
+	}
+	
+	
+	
 
 	// ----------------------------------------------------------------
 	// Update Item
@@ -225,13 +289,37 @@ public class DynamoDbHelper {
 		return outcome;
 	}
 
+//	public void updateItem(String tableName, String attributeValue) {
+//		HashMap<String, AttributeValue> item_key = new HashMap<String, AttributeValue>();
+//
+//		item_key.put("Name", new AttributeValue(attributeValue));
+//
+//		HashMap<String, AttributeValueUpdate> updated_values = new HashMap<String, AttributeValueUpdate>();
+//
+//		for (String[] field : extra_fields) {
+//			updated_values.put(field[0], new AttributeValueUpdate(new AttributeValue(field[1]), AttributeAction.PUT));
+//		}
+//
+//		final AmazonDynamoDB ddb = AmazonDynamoDBClientBuilder.defaultClient();
+//
+//		try {
+//			ddb.updateItem(tableName, item_key, updated_values);
+//		} catch (ResourceNotFoundException e) {
+//			System.err.println(e.getMessage());
+//			System.exit(1);
+//		} catch (AmazonServiceException e) {
+//			System.err.println(e.getMessage());
+//			System.exit(1);
+//		}
+//	}
+
 	// ----------------------------------------------------------------
 	// Delete Item
 	// ----------------------------------------------------------------
-	public DeleteItemOutcome deleteItem(String tableName, DeleteItemSpec deleteItemSpec) {
+	public DeleteItemOutcome deleteItem(String tableName, String itemKey) {
 		DynamoDB dynamoDB = new DynamoDB(this.dynamoDbClient);
 		Table table = dynamoDB.getTable(tableName);
-		DeleteItemOutcome outcome = table.deleteItem(deleteItemSpec);
+		DeleteItemOutcome outcome = table.deleteItem("Id", itemKey);
 		return outcome;
 	}
 

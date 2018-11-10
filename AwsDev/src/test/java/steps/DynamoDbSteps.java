@@ -21,6 +21,8 @@ public class DynamoDbSteps {
 	private String currentReadUnits;
 	private String currentWriteUnits;
 	private String currentItemName;
+	private String currentItemKey;
+	private Item currentItem;
 
 	public DynamoDbSteps(TestRun testRun) {
 		this.testRun = testRun;
@@ -126,6 +128,7 @@ public class DynamoDbSteps {
 	public void the_user_puts_an_item_using_the_given_information() throws Exception {
 		String tableName = getTableName();
 		String itemName = getItemName();
+		String itemKey = getItemKey();
 		this.currentItemName = itemName;
 		//dynamoDbHelper.putItem(tableName, itemName);
 	}
@@ -147,23 +150,28 @@ public class DynamoDbSteps {
 	    // For other transformations you can register a DataTableType.
 	    throw new cucumber.api.PendingException();
 	}
+	
+	
+	@When("the user gets an item using the given information")
+	public void the_user_gets_an_item_using_the_given_information() throws Exception {
+		String tableName = getTableName();		
+		String itemKey = getItemKey();		
+		this.currentItem = dynamoDbHelper.getItem(tableName, itemKey);
+	}
 
-	@When("the user gets an item named {string} from the table {string}")
-	public void the_user_gets_an_item_named_from_the_table(String string, String string2) {
-	    // Write code here that turns the phrase above into concrete actions
-	    throw new cucumber.api.PendingException();
+	@When("the user gets an item with the key {string} from the table {string}")
+	public void the_user_gets_an_item_named_from_the_table(String itemKey, String tableName) {
+		this.currentItem = dynamoDbHelper.getItem(tableName, itemKey);
 	}
 
 	@When("the user gets an item\\(s) as described below:")
 	public void the_user_gets_an_item_s_as_described_below(io.cucumber.datatable.DataTable dataTable) {
-	    // Write code here that turns the phrase above into concrete actions
-	    // For automatic transformation, change DataTable to one of
-	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
-	    //
-	    // For other transformations you can register a DataTableType.
-	    throw new cucumber.api.PendingException();
+		List<List<String>> table = dataTable.asLists(String.class);
+		for (int i = 1; i < table.size(); i++) {
+			String tableName = table.get(i).get(0);
+			String itemKey = table.get(i).get(1);
+			this.currentItem = dynamoDbHelper.getItem(tableName, itemKey);
+		}
 	}
 
 	@When("the user updates an item using the given information")
@@ -191,27 +199,25 @@ public class DynamoDbSteps {
 	}
 
 	@When("the user deletes an item using the given information")
-	public void the_user_deletes_an_item_using_the_given_information() {
-	    // Write code here that turns the phrase above into concrete actions
-	    throw new cucumber.api.PendingException();
+	public void the_user_deletes_an_item_using_the_given_information() throws Exception {
+		String tableName = getTableName();		
+		String itemKey = getItemKey();		
+		dynamoDbHelper.deleteItem(tableName, itemKey);
 	}
 
-	@When("the user deletes an item named {string} in the table {string}")
-	public void the_user_deletes_an_item_named_in_the_table(String string, String string2) {
-	    // Write code here that turns the phrase above into concrete actions
-	    throw new cucumber.api.PendingException();
+	@When("the user deletes an item with the key {string} from the table {string}")
+	public void the_user_deletes_an_item_named_in_the_table(String itemKey, String tableName) {
+		dynamoDbHelper.deleteItem(tableName, itemKey);
 	}
 
 	@When("the user deletes an item\\(s) as described below:")
 	public void the_user_deletes_an_item_s_as_described_below(io.cucumber.datatable.DataTable dataTable) {
-	    // Write code here that turns the phrase above into concrete actions
-	    // For automatic transformation, change DataTable to one of
-	    // E, List<E>, List<List<E>>, List<Map<K,V>>, Map<K,V> or
-	    // Map<K, List<V>>. E,K,V must be a String, Integer, Float,
-	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
-	    //
-	    // For other transformations you can register a DataTableType.
-	    throw new cucumber.api.PendingException();
+		List<List<String>> table = dataTable.asLists(String.class);
+		for (int i = 1; i < table.size(); i++) {
+			String tableName = table.get(i).get(0);
+			String itemKey = table.get(i).get(1);
+			dynamoDbHelper.deleteItem(tableName, itemKey);
+		}
 	}
 	// =======================================================================================================================================================
 	// =======================================================================================================================================================
@@ -280,6 +286,21 @@ public class DynamoDbSteps {
 			throw new Exception(errMsg);
 		}
 		return itemName;
+	}
+	
+	
+	private String getItemKey() throws Exception {
+		String itemKey = "";
+		if (testRun.getTestData().containsKey(Constants.ITEM_KEY_KEY)) {
+			itemKey = testRun.getTestData().get(Constants.ITEM_KEY_KEY).toString();
+			this.currentItemKey = itemKey;
+		} else if (this.currentItemKey != null) {
+			itemKey = this.currentItemKey;
+		} else {
+			String errMsg = "No '" + Constants.ITEM_KEY_KEY + "' has been set and the currentItemKey variable is null.";
+			throw new Exception(errMsg);
+		}
+		return itemKey;
 	}
 
 }

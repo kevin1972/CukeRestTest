@@ -6,56 +6,72 @@ Feature: LambdaSmokeTests
 Background: 
 	Given the following information: 
 		| Name   	| Value     		|
-		| region 	| us-east-2 		|
+		| region 	| us-east-2 		|		
 		
 		
 		
 #---------------------------------------------------------------------------
 #
-#---------------------------------------------------------------------------		
-@NotTested
+#---------------------------------------------------------------------------	
+@Tested
 Scenario: Get a List of Lambdas
 	When the user gets a list of functions
 	
+	Then the following lambdas should be returned:
+	|LambdaName				|
+	|HelloWorld				|
+	|cy-store-data			|
+	|cy-get-data			|
+	#|badfilename			|
+	
 	
 	
 #---------------------------------------------------------------------------
 #
-#---------------------------------------------------------------------------		
-@NotTested
+#---------------------------------------------------------------------------
+@Tested
 Scenario: RunFunctionNoPayload
-	When the user invokes the Lambda function named ""
+	When the user invokes the Lambda function named "HelloWorld"
+	
+	Then the status code "200" should be returned
+	
+	
+##---------------------------------------------------------------------------
+##
+##---------------------------------------------------------------------------		
+#@RunMe
+#Scenario: RunFunctionWithPayload
+#	When the user invokes the Lambda function named "HelloWorld" with the payload "{"Kevin":"Test"}"
+#	
+#	Then the status code "200" should be returned	
 	
 	
 #---------------------------------------------------------------------------
 #
 #---------------------------------------------------------------------------		
-@NotTested
-Scenario: RunFunctionWithPayload
-	When the user invokes the Lambda function named "" with the payload ""	
-	
-	
-#---------------------------------------------------------------------------
-#
-#---------------------------------------------------------------------------		
-@NotTested
+@Tested
 Scenario: RunFunctionWithPayload
 	Given the following information: 
 		| Name   		| Value     						|
-		| functionName 	| us-east-2 						|
-		| payload		| {"data":{"prop1":"prop1_value"}}	|
+		| functionName 	| HelloWorld 						|
+		| payload		| 									|
 	
-	When the user invokes the Lambda function using the given data	
+	When the user invokes the Lambda function using the given data
+	
+	Then the status code "200" should be returned		
 	
 	
 #---------------------------------------------------------------------------
 #
 #---------------------------------------------------------------------------		
-@NotTested
+@RunMe
+@Tested
 Scenario: RunFunctionUsingTable
 		
 	When the user invokes the Lambda function as described below:
-	|FunctionName		|Payload												|
-	|					|														|	
+	|FunctionName		|Payload									|
+	|HelloWorld			|Test										|
+	
+	Then the status code "200" should be returned	
 	
 	 
