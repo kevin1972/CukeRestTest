@@ -9,6 +9,13 @@ Background:
 		| region 	| us-east-2 		|
 		
 
+#---------------------------------------------------------------------------
+#
+#---------------------------------------------------------------------------		
+#@RunMe
+@Tested
+Scenario: ListLogGroups	
+	When the user lists the log groups
 
 #---------------------------------------------------------------------------
 #
@@ -36,7 +43,7 @@ Examples:
 #---------------------------------------------------------------------------		
 #@RunMe
 @Tested	
-Scenario Outline: GetLogStream	
+Scenario Outline: GetLogStreamsByGroupName	
 	When the user retrieves the Log Streams for the Log Group named "<LogGroupName>"
 		
 Examples:
@@ -49,7 +56,7 @@ Examples:
 #---------------------------------------------------------------------------		
 #@RunMe
 @Tested	
-Scenario Outline: GetLatestLogStreamFromGroup	
+Scenario Outline: GetLatestLogStreamByGroupName	
 	When the user retrieves the latest Log Stream for the Log Group named "<LogGroupName>"
 		
 Examples:
@@ -62,7 +69,7 @@ Examples:
 #---------------------------------------------------------------------------		
 #@RunMe
 @Tested	
-Scenario Outline: GetLatestEventLogsFromLatestEvent	
+Scenario Outline: GetLatestEventLogsByGroupName	
 	When the user retrieves the latest event logs for the Log Group named "<LogGroupName>"
 		
 Examples:
@@ -74,9 +81,9 @@ Examples:
 #---------------------------------------------------------------------------
 #
 #---------------------------------------------------------------------------		
-@RunMe
+#@RunMe
 @NotTested	
-Scenario Outline: GetLatestEventLogFromLatestEvent	
+Scenario Outline: GetLatestEventLogByGroupName	
 	When the user retrieves the latest event log for the Log Group named "<LogGroupName>"
 		
 Examples:
@@ -88,8 +95,21 @@ Examples:
 #
 #---------------------------------------------------------------------------		
 #@RunMe
+@NotTested	
+Scenario Outline: GetLatestEventLogByFunctionName	
+	When the user retrieves the latest event log for the Function named "<FunctionName>"
+		
+Examples:
+	|FunctionName				|
+	|/aws/lambda/HelloWorld		|	
+	
+	
+#---------------------------------------------------------------------------
+#
+#---------------------------------------------------------------------------		
+#@RunMe
 @Tested
-Scenario Outline: GetLogsByGroupNameAndStreamName	
+Scenario Outline: GetLatestLogByGroupNameAndStreamName	
 	When the user retrieves the latest log from the log group named "<LogGroupName>" and the stream named "<StreamName>"
 		
 Examples:

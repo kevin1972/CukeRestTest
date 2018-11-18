@@ -36,6 +36,12 @@ public class AwsLogsSteps {
 		this.awsLogsHelper = createAwsLogsHelper();
 	}
 	
+	
+	@When("the user lists the log groups")
+	public void the_user_lists_the_log_groups() {
+	    awsLogsHelper.listLogGroups();
+	}
+	
 	@When("the user retrieves the log groups")
 	public void the_user_retrieves_the_log_groups() {
 	    this.currentGroups = awsLogsHelper.getLogGroups();
@@ -58,6 +64,26 @@ public class AwsLogsSteps {
 		System.out.printf("Latest Event Log for the Group '%s':\n", groupName);
 		System.out.println(latestLog.getMessage());
 	}
+	
+	@When("the user retrieves the latest log from the function named {string}")
+	public void the_user_retrieves_the_latest_log_from_the_function_named(String functionName) {	
+		String prefix = "/aws/lambda/";
+		String groupName = prefix + functionName;
+		List<LogStream> streams = awsLogsHelper.getLogStreams(groupName); 
+		LogStream latestStream = streams.get(streams.size()-1);
+		this.currentLogStream = latestStream;
+		String logStreamName = latestStream.getLogStreamName();
+		this.currentLogStreamName = logStreamName;
+						
+		GetLogEventsRequest request = new GetLogEventsRequest().withLogGroupName(groupName).withLogStreamName(logStreamName);
+		GetLogEventsResult logEvents = awsLogsHelper.getLogEvents(request);
+		List<OutputLogEvent> outputLogEvents = logEvents.getEvents();
+		this.currentEventLogs = outputLogEvents;
+		
+		OutputLogEvent latestLog = outputLogEvents.get(outputLogEvents.size()-1);
+		System.out.printf("Latest Event Log for the function '%s':\n", functionName);
+		System.out.println(latestLog.getMessage());
+	}
 
 	@When("the user retrieves the latest log from the log group named {string} and the stream named {string}")
 	public void the_user_retrieves_the_latest_log_from_the_log_group_named_and_the_stream_named(String groupName, String streamName) {
@@ -66,13 +92,7 @@ public class AwsLogsSteps {
 		GetLogEventsResult logEvents = awsLogsHelper.getLogEvents(request);
 		List<OutputLogEvent> outputLogEvents = logEvents.getEvents();
 		this.currentEventLogs = outputLogEvents;
-				
-//		System.out.println("Output Log Events:");
-//		for(OutputLogEvent event:outputLogEvents) {
-//			String message = event.getMessage();
-//			System.out.println("Message: " + message);
-//		}
-				
+
 		OutputLogEvent latestLog = outputLogEvents.get(outputLogEvents.size()-1);
 		System.out.printf("Latest Event Log for the Group '%s' and the stream '%s':\n", groupName, streamName);
 		System.out.println(latestLog.getMessage());						
@@ -81,7 +101,8 @@ public class AwsLogsSteps {
 	
 	@When("the user retrieves the Log Streams for the Log Group named {string}")
 	public void the_user_retrieves_the_Log_Streams_for_the_Log_Group_named(String logGroupName) {
-	    awsLogsHelper.getLogStreams(logGroupName);
+		this.currentLogStreams = awsLogsHelper.getLogStreams(logGroupName);
+	    
 	}
 	
 	@When("the user retrieves the latest Log Stream for the Log Group named {string}")

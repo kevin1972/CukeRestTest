@@ -57,36 +57,44 @@ public class AwsLogsHelper {
 	// Get Log Groups
 	// ----------------------------------------------------------------
 	public List<LogGroup> getLogGroups(DescribeLogGroupsRequest describeLogGroupsRequest) {
-		List<LogGroup> groups = null;		
-		groups = this.awsLogsClient.describeLogGroups(describeLogGroupsRequest).getLogGroups();
-		System.out.println("Log Groups:");
-		for(LogGroup group:groups) {
-			System.out.println(group.getLogGroupName());
-		}
+		List<LogGroup> groups = null;
+		groups = this.awsLogsClient.describeLogGroups(describeLogGroupsRequest).getLogGroups();		
 		return groups;
 	}
 
-	public List<LogGroup> getLogGroups() {				
+	public List<LogGroup> getLogGroups() {
 		List<LogGroup> groups = null;		
-		System.out.println("Log Groups:");
-		groups = this.awsLogsClient.describeLogGroups().getLogGroups();
-		for(LogGroup group:groups) {
-			System.out.println(group.getLogGroupName());
-		}
+		groups = this.awsLogsClient.describeLogGroups().getLogGroups();		
 		return groups;
 	}
 	
 	
-	public List<LogStream> getLogStreams(String logGroupName) {				
+	public void listLogGroups() {
+		List<LogGroup> groups = null;		
+		groups = this.awsLogsClient.describeLogGroups().getLogGroups();
+		System.out.println("Log Groups:");
+		for (LogGroup group : groups) {
+			System.out.println(group.getLogGroupName());
+		}		
+	}
+
+	public List<LogStream> getLogStreams(String logGroupName) {
 		List<LogStream> streams = null;		
+		DescribeLogStreamsRequest describeLogStreamsRequest = new DescribeLogStreamsRequest(logGroupName);
+		DescribeLogStreamsResult result = this.awsLogsClient.describeLogStreams(describeLogStreamsRequest);
+		streams = result.getLogStreams();
+		return streams;
+	}
+
+	public void listLogStreams(String logGroupName) {
+		List<LogStream> streams = null;
 		System.out.println("Log Streams:");
 		DescribeLogStreamsRequest describeLogStreamsRequest = new DescribeLogStreamsRequest(logGroupName);
 		DescribeLogStreamsResult result = this.awsLogsClient.describeLogStreams(describeLogStreamsRequest);
-		streams = result.getLogStreams();		
-		for(LogStream stream:streams) {
+		streams = result.getLogStreams();
+		for (LogStream stream : streams) {
 			System.out.println(stream.getLogStreamName());
-		}
-		return streams;
+		}		
 	}
 
 	// ----------------------------------------------------------------
@@ -94,17 +102,16 @@ public class AwsLogsHelper {
 	// ----------------------------------------------------------------
 	public List<OutputLogEvent> getLogs(String groupName) {
 		List<OutputLogEvent> logs = null;
-		GetLogEventsResult logEventsResult = this.awsLogsClient.getLogEvents(
-				new GetLogEventsRequest().withLogGroupName(groupName));
+		GetLogEventsResult logEventsResult = this.awsLogsClient
+				.getLogEvents(new GetLogEventsRequest().withLogGroupName(groupName));
 		logs = logEventsResult.getEvents();
 		return logs;
 	}
-	
-		
+
 	public List<OutputLogEvent> getLogs(String groupName, String logStreamName) {
 		List<OutputLogEvent> logs = null;
-		GetLogEventsResult logEventsResult = this.awsLogsClient.getLogEvents(
-				new GetLogEventsRequest().withLogGroupName(groupName).withLogStreamName(logStreamName));
+		GetLogEventsResult logEventsResult = this.awsLogsClient
+				.getLogEvents(new GetLogEventsRequest().withLogGroupName(groupName).withLogStreamName(logStreamName));
 		logs = logEventsResult.getEvents();
 		return logs;
 	}
