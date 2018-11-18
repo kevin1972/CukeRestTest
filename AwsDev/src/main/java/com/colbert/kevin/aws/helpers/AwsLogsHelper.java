@@ -14,6 +14,7 @@ import com.amazonaws.services.logs.model.DescribeLogStreamsResult;
 import com.amazonaws.services.logs.model.GetLogEventsRequest;
 import com.amazonaws.services.logs.model.GetLogEventsResult;
 import com.amazonaws.services.logs.model.LogGroup;
+import com.amazonaws.services.logs.model.LogStream;
 import com.amazonaws.services.logs.model.OutputLogEvent;
 
 public class AwsLogsHelper {
@@ -58,7 +59,7 @@ public class AwsLogsHelper {
 	public List<LogGroup> getLogGroups(DescribeLogGroupsRequest describeLogGroupsRequest) {
 		List<LogGroup> groups = null;		
 		groups = this.awsLogsClient.describeLogGroups(describeLogGroupsRequest).getLogGroups();
-		System.out.print("Groups:");
+		System.out.println("Log Groups:");
 		for(LogGroup group:groups) {
 			System.out.println(group.getLogGroupName());
 		}
@@ -67,12 +68,25 @@ public class AwsLogsHelper {
 
 	public List<LogGroup> getLogGroups() {				
 		List<LogGroup> groups = null;		
-		System.out.print("Groups:");
+		System.out.println("Log Groups:");
 		groups = this.awsLogsClient.describeLogGroups().getLogGroups();
 		for(LogGroup group:groups) {
 			System.out.println(group.getLogGroupName());
 		}
 		return groups;
+	}
+	
+	
+	public List<LogStream> getLogStreams(String logGroupName) {				
+		List<LogStream> streams = null;		
+		System.out.println("Log Streams:");
+		DescribeLogStreamsRequest describeLogStreamsRequest = new DescribeLogStreamsRequest(logGroupName);
+		DescribeLogStreamsResult result = this.awsLogsClient.describeLogStreams(describeLogStreamsRequest);
+		streams = result.getLogStreams();		
+		for(LogStream stream:streams) {
+			System.out.println(stream.getLogStreamName());
+		}
+		return streams;
 	}
 
 	// ----------------------------------------------------------------

@@ -19,4 +19,9 @@ Feature: DevScratchpad
       | Test2 | Pass     | Fail   |
       | Test3 | Fail     | Pass   |
       | Test4 | Fail     | Fail   |
+      
+      
+      
+Scenario: Blah
+	When The user gets something called "something"      
             
