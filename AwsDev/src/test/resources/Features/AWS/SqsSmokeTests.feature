@@ -136,16 +136,28 @@ Examples:
 	 
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
-@RunMe
-@NotTested
+#@RunMe
+@Tested
 Scenario: SendMessageUsingTable	
 	When the user sends a message(s) as described below: 
 		|QueueName					|DelayInSeconds	|MessageBody													|
 		|kevins-test-queue-103072	| 1				|{"body":{"country":"America","planet":"Earth"}}				|
 		
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+@RunMe
+@NotTested
+Scenario: ListMessagesUsingGivenInfo 
+	Given the following information: 
+		| Name   		| Value     					|
+		| queueName 	| kevins-test-queue-103072 		|  				
+		| delayInSeconds| 1								|
 		
+	When the user lists the messages with the given information
+			
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
+#@RunMe
 @NotTested
 Scenario: GetMessagesUsingGivenInfo 
 	Given the following information: 

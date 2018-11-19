@@ -148,6 +148,20 @@ public class SqsSteps {
 	// ###########################################################################
 	// Get Message Methods
 	// ###########################################################################
+	@When("the user lists the messages with the given information")
+	public void the_user_lists_the_messages_with_the_given_information() throws Exception {
+		String queueName = getQueueName();
+		String queueUrl = sqsHelper.getQueueUrl(queueName);
+		List<Message> messages = sqsHelper.getMessages(queueUrl);
+		this.currentMessages = messages;
+		System.out.println("Messages:");
+		for(Message m:messages) {
+			String msgId = m.getMessageId();
+			String msgBody = m.getBody();
+			System.out.printf("%s:%s\n", msgId,msgBody);
+		}
+	}
+	
 	@When("the user gets the messages with the given information")
 	public void the_user_gets_the_messages_with_the_given_information() throws Exception {
 		Message message = getMessage();

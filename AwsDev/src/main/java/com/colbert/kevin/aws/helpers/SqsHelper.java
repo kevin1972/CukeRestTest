@@ -11,6 +11,7 @@ import com.amazonaws.services.sqs.model.AmazonSQSException;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.ListQueuesResult;
 import com.amazonaws.services.sqs.model.Message;
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 
 public class SqsHelper {
@@ -145,7 +146,11 @@ public class SqsHelper {
 	// Get Message(s)
 	// ----------------------------------------------------------------
 	public List<Message> getMessages(String queueUrl) {
-		List<Message> messages = this.sqsClient.receiveMessage(queueUrl).getMessages();
+		//List<Message> messages = this.sqsClient.receiveMessage(queueUrl).getMessages();
+		ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl);
+		request.setWaitTimeSeconds(20);
+		request.setMaxNumberOfMessages(10);								
+		List<Message> messages = this.sqsClient.receiveMessage(request).getMessages();
 		return messages;
 	}
 
