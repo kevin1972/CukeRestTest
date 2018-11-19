@@ -64,6 +64,26 @@ public class SqsHelper {
 			}
 		}
 	}
+	
+	
+	public void createQueue(String queueName, String region, String delaySeconds, String messageRetentionPeriod) {
+		
+		if(!this.region.equals(region)) {
+			this.region = region;
+			this.sqsClient = createSqsClient(region);
+		}
+		
+		CreateQueueRequest create_request = new CreateQueueRequest(queueName)
+				.addAttributesEntry("DelaySeconds", delaySeconds)
+				.addAttributesEntry("MessageRetentionPeriod", messageRetentionPeriod);
+		try {
+			this.sqsClient.createQueue(create_request);
+		} catch (AmazonSQSException e) {
+			if (!e.getErrorCode().equals("QueueAlreadyExists")) {
+				throw e;
+			}
+		}
+	}
 
 	// ----------------------------------------------------------------
 	// List Queues
@@ -76,11 +96,32 @@ public class SqsHelper {
 		}
 		return lq_result;
 	}
+	
+	public ListQueuesResult listQueues(String region) {
+		if(!this.region.equals(region)) {
+			this.region = region;
+			this.sqsClient = createSqsClient(region);
+		}
+		ListQueuesResult lq_result = this.sqsClient.listQueues();
+		System.out.println("Your SQS Queue URLs:");
+		for (String url : lq_result.getQueueUrls()) {
+			System.out.println(url);
+		}
+		return lq_result;
+	}
 
 	// ----------------------------------------------------------------
 	// Get Queue URL
 	// ----------------------------------------------------------------
 	public String getQueueUrl(String queueName) {
+		return this.sqsClient.getQueueUrl(queueName).getQueueUrl();
+	}
+	
+	public String getQueueUrl(String queueName, String region) {
+		if(!this.region.equals(region)) {
+			this.region = region;
+			this.sqsClient = createSqsClient(region);
+		}
 		return this.sqsClient.getQueueUrl(queueName).getQueueUrl();
 	}
 

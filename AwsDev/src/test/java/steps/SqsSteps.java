@@ -22,7 +22,7 @@ public class SqsSteps {
 	private Message currentMessage;	
 	private String currentRegion;
 	final int DEFAULT_DELAY_IN_SECONDS = 1;
-	final String DEFAULT_MESSAGE_RETENTION_PERIOD = "10";
+	final String DEFAULT_MESSAGE_RETENTION_PERIOD = "345600";
 	private String currentMessageBody;
 	
 	@SuppressWarnings("unused")
@@ -50,19 +50,41 @@ public class SqsSteps {
 	public void the_user_gets_a_list_of_queues_in_the_given_region() {
 		this.currentQueueList = sqsHelper.listQueues();
 	}
-
+	
+	
+	@When("the user gets a list of queues for the region {string}")
+	public void the_user_gets_a_list_of_queues_for_the_region(String region) {
+		this.currentQueueList = sqsHelper.listQueues(region);
+	}
+	
+	
+	@When("the user creates a queue named {string} in the region {string}")
+	public void the_user_creates_a_queue_named_in_the_region(String queueName, String region) {
+		sqsHelper.createQueue(queueName, region, String.valueOf(DEFAULT_DELAY_IN_SECONDS), DEFAULT_MESSAGE_RETENTION_PERIOD);
+	}
+	
+	
 	@When("the user gets the URL for the given queue")
 	public void the_user_gets_the_URL_for_the_given_queue() throws Exception {
 		String queueName = getQueueName();
-		this.currentQueueUrl = sqsHelper.getQueueUrl(queueName);
+		this.currentQueueUrl = sqsHelper.getQueueUrl(queueName);		
+		System.out.println("Queue URL: " + this.currentQueueUrl);
 	}
+	
 
 	@When("the user gets the URL for the queue named {string}")
 	public void the_user_gets_the_URL_for_the_queue_named(String queueName) {
 		this.currentQueueUrl = sqsHelper.getQueueUrl(queueName);
+		System.out.println("Queue URL: " + this.currentQueueUrl);
+	}
+	
+	@When("the user gets the URL for the queue named {string} in the region {string}")
+	public void the_user_gets_the_URL_for_the_queue_named_in_the_region(String queueName, String region) {
+		this.currentQueueUrl = sqsHelper.getQueueUrl(queueName, region);
+		System.out.println("Queue URL: " + this.currentQueueUrl);
 	}
 
-	@When("the user deletes the given queue")
+	@When("the user deletes the queue")
 	public void the_user_deletes_the_given_queue() throws Exception {
 		String queueName = getQueueName();
 		String queueUrl = sqsHelper.getQueueUrl(queueName);
@@ -74,6 +96,13 @@ public class SqsSteps {
 		String queueUrl = sqsHelper.getQueueUrl(queueName);
 		sqsHelper.deleteQueue(queueUrl);
 	}
+	
+	
+	@When("the user deletes the queue named {string} in the region {string}")
+	public void the_user_deletes_the_queue_named(String queueName, String region) {
+		String queueUrl = sqsHelper.getQueueUrl(queueName, region);
+		sqsHelper.deleteQueue(queueUrl);
+	}
 
 	// ###########################################################################
 	// Send Message Methods
@@ -81,9 +110,12 @@ public class SqsSteps {
 	@When("the user sends the message with the given information")
 	public void the_user_sends_the_message_with_the_given_information() throws Exception {
 		String messageBody = getMessageBody();
-		String queueUrl = getQueueUrl();
+		String queueName = getQueueName();
+		String queueUrl = sqsHelper.getQueueUrl(queueName);
 		sqsHelper.sendMessage(queueUrl, messageBody, DEFAULT_DELAY_IN_SECONDS);
 	}
+	
+	
 
 	@When("the user sends the message to the queue {string} with a {string} second delay")
 	public void the_user_sends_the_message_to_the_queue_with_a_second_delay(String queueName, String delayInSeconds)
@@ -105,9 +137,9 @@ public class SqsSteps {
 		List<List<String>> table = dataTable.asLists(String.class);
 
 		for (int i = 1; i < table.size(); i++) {
-			String queueName = table.get(i).get(0);
-			String messageBody = table.get(i).get(1);
-			String delayInSeconds = table.get(i).get(2);
+			String queueName = table.get(i).get(0);			
+			String delayInSeconds = table.get(i).get(1);
+			String messageBody = table.get(i).get(2);
 			String queueUrl = sqsHelper.getQueueUrl(queueName);
 			sqsHelper.sendMessage(queueUrl, messageBody, Integer.valueOf(delayInSeconds));
 		}
@@ -286,6 +318,7 @@ public class SqsSteps {
 	}
 
 	private String getQueueUrl() throws Exception {
+		
 		String queueUrl = "";
 		if (testRun.getTestData().containsKey(Constants.SQS_QUEUE_URL_KEY)) {
 			queueUrl = testRun.getTestData().get(Constants.SQS_QUEUE_URL_KEY).toString();

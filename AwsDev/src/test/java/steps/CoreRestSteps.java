@@ -52,6 +52,11 @@ public class CoreRestSteps {
 		}
 		
 	}
+	
+	@When("the user waits {string} seconds")
+	public void the_user_waits_seconds(String waitInSeconds) throws NumberFormatException, InterruptedException {
+	    Thread.sleep(Integer.valueOf(waitInSeconds) * 1000);
+	}
 
 	// -----------------------------------------------------------
 	// -----------------------------------------------------------

@@ -5,108 +5,143 @@ Feature: SqsSmokeTests
 
 Background: 
 	Given the following information: 
-		| Name   	| Value     		|
-		| region 	| us-east-2 		|
-		| queueName	| 					|
-		
-		
+		| Name   	| Value     				|
+		| region 	| us-east-2 				|
+		| queueName	| kevins-test-queue-103072	|
+
+
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
-@NotTested 
-Scenario: Create a Queue 
-	When the user creates a queue named "test-queue" in the given region 
-	
-	
-#---------------------------------------------------------------------------
-#---------------------------------------------------------------------------
-@NotTested
+#@RunMe
+@Tested
 Scenario: List Queues 
-	When the user gets a list of queues in the given region 
+	When the user gets a list of queues in the given region		
+
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+#@RunMe
+@Tested
+Scenario Outline: List Queues 
+	When the user gets a list of queues for the region "<Region>"
 	
+Examples:
+|Region		|	
+|us-east-1	|			
 	
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
-@NotTested
+#@RunMe
+@Tested 
+Scenario: CreateQueue 
+	When the user creates a queue named "kevins-test-queue-103072" in the given region 
+	
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+#@RunMe
+@Tested 
+Scenario Outline: CreateQueueWithNameAndRegion 
+	When the user creates a queue named "<QueueName>" in the region "<Region>"
+	And the user gets a list of queues in the given region	
+	
+Examples:
+	|QueueName							|Region		|		
+	|kevins-test-queue-103072-us-east-1	|us-east-1	|
+	
+
+	
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+#@RunMe
+@Tested
 Scenario: GetQueueUrlUsingGivenInfo 
 	Given the following information: 
-		| Name   		| Value     		|
-		| queueName 	| queueName 		|
+		| Name   		| Value     					|
+		| queueName 	| kevins-test-queue-103072 		|
 		
 	When the user gets the URL for the given queue
 	
 	
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
+#@RunMe
 @NotTested
 Scenario Outline: GetQueueUsingExplicitInfo 
 	
-	When the user gets the URL for the queue named "<QueueName>"
+	When the user gets the URL for the queue named "<QueueName>" in the region "<Region>"
 	
 Examples:
-	|QueueName|	 
+	|QueueName					|Region		|
+	|kevins-test-queue-103072	|use-east-2	|
 	
 	
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
-@NotTested
+#@RunMe
+@Tested
 Scenario: DeleteQueueUsingGivenInfo 
-	Given the following information: 
-		| Name   		| Value     		|
-		| queueName 	| queueName 		|
-		
-		
-	When the user deletes the given queue
-	
+
+	When the user creates a queue named "kevins-test-queue-103072" in the given region
+	And the user gets a list of queues in the given region				
+	And the user deletes the queue
+	And the user waits "60" seconds
+	And the user gets a list of queues in the given region
 	
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
+#@RunMe
 @NotTested
 Scenario Outline: DeleteQueueUsingExplicitInfo 
 	
-	When the user deletes the queue named "<QueueName>"
+	When the user creates a queue named "<QueueName>" in the given region
+	And the user gets a list of queues in the given region				
+	And the user deletes the queue
+	And the user waits "60" seconds
+	And the user gets a list of queues in the given region
 	
 Examples:
-	|QueueName|	 
+	|QueueName					|	 
+	|kevins-test-queue-103072	|
 	
-	 
 	
-	
+	 		
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
-@NotTested
+#@RunMe
+@Tested
 Scenario: SendMessageUsingGivenInformation 
 	Given the following information: 
-		| Name   		| Value     		|
-		| queueName 	| queueName 		|  		
-		| messageBody	| {messageBody}		|
-		| delayInSeconds| 5					|
-						
-		
+		| Name   		| Value     												|
+		| queueName 	| kevins-test-queue-103072 									|  		
+		| body			| {"body":{"firstName":"Kevin","lastName":"Colbert"}}		|
+		| delayInSeconds| 1															|
+								
 	When the user sends the message with the given information
 	
 	
 	
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
-@NotTested
+#@RunMe
+@Tested
 Scenario Outline: SendMessageUsingExplicitInformation 
 	
 	#When the user sends the message to the queue "" with a "" second delay 
 	
-	When the user sends the message "<Message>" to the queue "<QueueName>" with a "<DelayInSeconds>" second delay
+	When the user sends the message '"<Message>"' to the queue "<QueueName>" with a "<DelayInSeconds>" second delay
 	
 Examples:
-	|Message									|QueueName			|DelayInSeconds	|
-	|											|					|				|
+	|Message												|QueueName					|DelayInSeconds	|
+	|{"body":{"city":"Aurora","state":"Colorado"}}			|kevins-test-queue-103072	|1				|
 	 
 	 
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
+@RunMe
 @NotTested
 Scenario: SendMessageUsingTable	
 	When the user sends a message(s) as described below: 
-		|QueueName		|DelayInSeconds	|MessageBody													|
-		|blah			| 5				|																|
+		|QueueName					|DelayInSeconds	|MessageBody													|
+		|kevins-test-queue-103072	| 1				|{"body":{"country":"America","planet":"Earth"}}				|
 		
 		
 #---------------------------------------------------------------------------
@@ -114,9 +149,9 @@ Scenario: SendMessageUsingTable
 @NotTested
 Scenario: GetMessagesUsingGivenInfo 
 	Given the following information: 
-		| Name   		| Value     		|
-		| queueName 	| queueName 		|  				
-		| delayInSeconds| 5					|
+		| Name   		| Value     					|
+		| queueName 	| kevins-test-queue-103072 		|  				
+		| delayInSeconds| 1								|
 		
 	When the user gets the messages with the given information
 	
@@ -129,8 +164,8 @@ Scenario Outline: GetMessagesUsingExplicitInfo
 	When the user gets the messages from the queue "<QueueName>" with a "<DelayInSeconds>" second delay
 	
 Examples:
-	|QueueName			|DelayInSeconds	|
-	|					|				|
+	|QueueName					|DelayInSeconds	|
+	|kevins-test-queue-103072	|1				|
 	
 	 
 #---------------------------------------------------------------------------
@@ -138,8 +173,8 @@ Examples:
 @NotTested
 Scenario: GetMessagesUsingTable	
 	When the user gets message(s) as described below: 
-		|QueueName		|MessageID		|
-		|blah				| 				|  
+		|QueueName					|MessageID		|
+		|kevins-test-queue-103072	| 				|  
 		
 		
 #---------------------------------------------------------------------------
@@ -147,10 +182,10 @@ Scenario: GetMessagesUsingTable
 @NotTested
 Scenario: GetSingleMessageUsingGivenInfo 
 	Given the following information: 
-		| Name   		| Value     		|
-		| queueName 	| queueName 		|		  			
-		| delayInSeconds| 5					|
-		| messageId		|					|
+		| Name   		| Value     				|
+		| queueName 	| kevins-test-queue-103072	|		  			
+		| delayInSeconds| 1							|
+		| messageId		|							|
 		
 		
 	When the user gets the messages with the given information
@@ -241,3 +276,5 @@ Scenario: DeleteSingleMessageUsingTable
 	When the user deletes the message(s) using the following criteria: 
 		|QueueName		|MessageId		|DelayInSeconds	|
 		|blah			|				| 5				|
+		
+		

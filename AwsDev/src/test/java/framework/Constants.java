@@ -15,10 +15,10 @@ public class Constants {
 	public static final String FILE_PATH_KEY = "filePath";
 	public static final String FILE_KEY = "fileKey";
 	public static final String S3_BUCKET_NAME_KEY = "bucketName";
-	public static final String SQS_QUEUE_NAME_KEY = "sqsQueueName";
-	public static final String SQS_MESSAGE_KEY = "sqsMessage";
-	public static final String SQS_MESSAGE_BODY_KEY = "sqsMessageBody";
-	public static final String SQS_QUEUE_URL_KEY = "sqsQueueUrl";
+	public static final String SQS_QUEUE_NAME_KEY = "queueName";
+	public static final String SQS_MESSAGE_KEY = "message";
+	public static final String SQS_MESSAGE_BODY_KEY = "body";
+	public static final String SQS_QUEUE_URL_KEY = "queueUrl";
 	public static final String LAMBDA_FUNCTION_NAME_KEY = "functionName";
 	public static final String LAMBDA_PAYLOAD_KEY = "payload";
 	public static final String TOPIC_ARN_KEY = "topicArn";

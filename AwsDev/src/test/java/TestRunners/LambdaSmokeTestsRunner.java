@@ -6,7 +6,7 @@ import cucumber.api.junit.Cucumber;
 @RunWith(Cucumber.class)
 @CucumberOptions(
 		plugin = {"pretty"},
-		features = {"src/test/resources/LambdaSmokeTests.feature"},
+		features = {"src/test/resources/Features/AWS/LambdaSmokeTests.feature"},
 		glue = {"steps"},
 		tags = {"@RunMe"}
 		)
